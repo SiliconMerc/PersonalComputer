@@ -13,62 +13,47 @@
 
 // Put your code here.
 //if(D==0)
-//	val=-1
-//else
 //	val=0
-//for i =0 ; i < 8191 ; i++
-//	RAM[screen+i]=val
-	
-(POSITIVE)
-//if(D==0)
-@KBD
-D=M
-
-//val=0
-//if(D!=0)
+//else
 //	val=-1
-@val
-M=0
-@PRINT
-D;JEQ
-@val
-M=-1
-
 //for i =0 ; i <= 8191 ; i++
 //	RAM[screen+i]=val
-(PRINT)
-@8191
+	
+(KBDLOOP)
+@8192
 D=A
 @n
-M=D
+M=D//n=8192
 @i
 M=0
+@val//val=0
+M=0
 
-(LOOP)
-@i
+@KBD
 D=M
-@n
-D=D-M
-
-@POSITIVE //check again for keyboard
-D;JGT // if i>n goto POSITIVE
-
-@i
-D=M
-@SCREEN
-A=D+A
-D=A
-@addr
-M=D //screen+i
-
+@LOOP
+D;JEQ
 @val
-D=M 
+M=-1//val=-1
+(LOOP)
+@SCREEN
+D=A
+@i
+D=M+D
+@addr
+M=D
+@val
+D=M
 @addr
 A=M
-M=D	 //RAM[screen+i]=val
-
-@i //i=i+1
+M=D//RAM[screen+i]=val
+@i
 M=M+1
-
+@n
+D=M
+@i
+D=D-M
+@KBDLOOP
+D;JEQ
 @LOOP
 0;JMP

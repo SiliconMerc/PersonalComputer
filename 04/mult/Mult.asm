@@ -18,14 +18,14 @@
 //	sum=sum+R1
 //R2=sum
 
+
 //sum=0
 @sum
 M=0
 //i=0
 @i
-M=1
+M=0
 
-//see if R1 or R0 is 0
 @R0
 D=M
 @END
@@ -34,36 +34,31 @@ D;JEQ
 D=M
 @END
 D;JEQ
-
 //for i=0;i<R0;i++
 //	sum=sum+R1
 (LOOP)
-@i
-D=M
-@R0
-D=D-M
-@END
-D;JGT //if i>R0
-
-@sum //sum=sum+R1
+@sum
 D=M
 @R1
 D=D+M
 @sum
 M=D
-
 @i
-M=M+1
+M=M+1//i++
+@i
+D=M
+@R0
+D=D-M
+@END
+D;JEQ
 @LOOP
 0;JMP
 
-//R2=sum
 (END)
+//R2=sum
 @sum
 D=M
 @R2
 M=D
-
-(OVER)
-@OVER
+@END
 0;JMP
