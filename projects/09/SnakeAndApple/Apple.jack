@@ -1,0 +1,90 @@
+// File name: projects/09/SnakeAndApple/Apple.jack
+
+/** Implements a graphical apple. */
+class Apple {
+
+   field int x, y; // screen location of the apple's top-left corner
+   field int size; // length of this apple, in pixels
+
+   /** Constructs a new apple with a given location and size. */
+   constructor Apple new(int Ax, int Ay) {
+      let x = (Ax/16) * 16;
+      let y = (Ay/16) * 16;
+      let size = 16;
+      do draw(x,y);
+      return this;
+   }
+   method int getX(){
+      return x;
+   }
+   method int getY(){
+      return y;
+   }
+   method int getSize(){
+      return size;
+   }
+   /** Disposes this apple. */
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   /** Draws the apple on the screen. */
+   method void draw(int x,int y) {
+      var int memAddress;
+      let memAddress = 16384 + getLocation(x,y);
+      do Memory.poke(memAddress+0, 7536);
+      do Memory.poke(memAddress+0, 256);
+      do Memory.poke(memAddress+32, 14652);
+      do Memory.poke(memAddress+64, 32126);
+      do Memory.poke(memAddress+96, -1);
+      do Memory.poke(memAddress+128, -1);
+      do Memory.poke(memAddress+160, -1);
+      do Memory.poke(memAddress+192, -1);
+      do Memory.poke(memAddress+224, -1);
+      do Memory.poke(memAddress+256, -1);
+      do Memory.poke(memAddress+288, -1);
+      do Memory.poke(memAddress+320, -1);
+      do Memory.poke(memAddress+352, 32766);
+      do Memory.poke(memAddress+384, 16380);
+      do Memory.poke(memAddress+416, 16368);
+      do Memory.poke(memAddress+448, 8160);
+      do Memory.poke(memAddress+480, 0);
+      return;
+   }
+   /** Draws the apple on the screen. */
+   method void erase(int x,int y) {
+      var int memAddress;
+      let memAddress = 16384 + getLocation(x,y);
+      do Memory.poke(memAddress+0, 256);
+      do Memory.poke(memAddress+32,0);
+      do Memory.poke(memAddress+64,0);
+      do Memory.poke(memAddress+96,0);
+      do Memory.poke(memAddress+128,0);
+      do Memory.poke(memAddress+160,0);
+      do Memory.poke(memAddress+192,0);
+      do Memory.poke(memAddress+224,0);
+      do Memory.poke(memAddress+256,0);
+      do Memory.poke(memAddress+288,0);
+      do Memory.poke(memAddress+320,0);
+      do Memory.poke(memAddress+352,0);
+      do Memory.poke(memAddress+384,0);
+      do Memory.poke(memAddress+416,0);
+      do Memory.poke(memAddress+448,0);
+      do Memory.poke(memAddress+480, 0);
+      return;
+   }
+
+    /** Get the location of apple on the screen */
+   method int getLocation(int x,int y) {
+      var int location;
+      if(x+size > 512){
+         let x=512-size;
+      }
+      if(y+size > 256){
+         let y=256-size;
+      }
+      let location=(y*32)+(x/16);
+      return location;
+   }
+}

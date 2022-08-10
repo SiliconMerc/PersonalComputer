@@ -1,0 +1,41 @@
+class StartScreen
+{
+    // Draws the menu on the left-hand side of the screen
+    function void drawMenu() 
+    {
+        do StartScreen.drawFrame(1, 1, 200, 254);
+        do Output.moveCursor(1, 2);
+        do Output.printString("CONWAY'S GAME OF LIFE");
+        do Output.moveCursor(4, 2);
+        do Output.printString("Wikipedia article:");
+        do Output.moveCursor(5, 2);
+        do Output.printString("https://bit.ly/3P6YXec");
+        
+        do Output.moveCursor(8, 2);
+        do Output.printString("Controls:");
+        do Output.moveCursor(9, 2);
+        do Output.printString("r - random");
+        do Output.moveCursor(11, 2);
+        do Output.printString("g - glider");
+        do Output.moveCursor(13, 2);
+        do Output.printString("p - pulsar");
+        do Output.moveCursor(15, 2);
+        do Output.printString("h - heavy spaceship");
+        do Output.moveCursor(17, 2);
+        do Output.printString("q - quit");
+  
+        do Output.println();
+        return;
+    }
+
+    // Draws the frame around the menu.
+    function void drawFrame(int x1, int y1, int x2, int y2) 
+    {
+        do Screen.setColor(true);
+        do Screen.drawLine(x1, y1, x1, y2);
+        do Screen.drawLine(x1, y1, x2, y1);
+        do Screen.drawLine(x1, y2, x2, y2);
+        do Screen.drawLine(x2, y1, x2, y2);
+        return;
+    }
+}

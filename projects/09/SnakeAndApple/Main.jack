@@ -1,0 +1,12 @@
+// File name: projects/09/SnakeAndApple/Main.jack
+
+// Inputs some numbers and computes their average
+class Main {
+   function void main() {
+      var SnakeGame game;
+      let game = SnakeGame.new();
+      do game.run();
+      do game.dispose();
+      return;
+   }
+}
