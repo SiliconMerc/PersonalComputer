@@ -1,6 +1,0 @@
-class SymbolTable{
-
-};
-class VMWriter{
-    
-};

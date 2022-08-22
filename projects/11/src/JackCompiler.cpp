@@ -1,5 +1,4 @@
 #include "include/JackTokenizer.h"
-#include "include/JackCompiler.h"
 #include "include/JackAnalyzer.h"
 int main(int argc, char *argv[]){
     //prompt> JackAnalyzer input
@@ -10,6 +9,7 @@ int main(int argc, char *argv[]){
     vector<string> files;
     string wpath;
     string path=argv[1];
+    cout<<"Searching in file "<<path<<endl;
     if(path.find(".jack")==string::npos){
         // cout<<"Dir";
         //its a directory
@@ -42,11 +42,11 @@ int main(int argc, char *argv[]){
         while(tokenize->hasMoreTokens()){
             tokenize->advance();
             switch(tokenize->tokenType()){
-                case KEYWORD:tokenize->keyWord();break;
-                case SYMBOL:tokenize->symbol();break;
-                case IDENTIFIER:tokenize->identifier();break;
-                case INT_CONST:tokenize->intVal();break;
-                case STRING_CONST:tokenize->stringVal();break;
+                case TOKEN_E::KEYWORD:tokenize->keyWord();break;
+                case TOKEN_E::SYMBOL:tokenize->symbol();break;
+                case TOKEN_E::IDENTIFIER:tokenize->identifier();break;
+                case TOKEN_E::INT_CONST:tokenize->intVal();break;
+                case TOKEN_E::STRING_CONST:tokenize->stringVal();break;
             }
         }
         delete(tokenize);

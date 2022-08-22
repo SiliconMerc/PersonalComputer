@@ -1,0 +1,5 @@
+push constant 1
+call Memory.alloc 1
+pop pointer 0
+function Square.new 0
+push argument 0

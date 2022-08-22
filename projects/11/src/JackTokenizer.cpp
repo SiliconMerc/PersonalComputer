@@ -119,9 +119,9 @@ void JackTokenizer::advance(){
     current_token=trimString(current_token);
     // cout<<current_token<<endl;
 }
-tokens_e JackTokenizer::tokenType(){
+TOKEN_E::tokens_e JackTokenizer::tokenType(){
     if(current_token.size()==0){
-        return NONE;
+        return TOKEN_E::NONE;
     }
     //Returns the type of the current token
     try{
@@ -132,17 +132,17 @@ tokens_e JackTokenizer::tokenType(){
         regex stringConstant("[\"\'][^\'\"]*[\'\"]");
         regex identifier("[a-zA-Z_][a-zA-Z_0-9]*");
         if(regex_match(current_token, keyword)){
-            return KEYWORD;
+            return TOKEN_E::KEYWORD;
         } else if(regex_match(current_token,symbol)){
-            return SYMBOL;
+            return TOKEN_E::SYMBOL;
         } else if(regex_match(current_token,integerConstant)){
-            return INT_CONST;
+            return TOKEN_E::INT_CONST;
         } else if(regex_match(current_token,stringConstant)){
-            return STRING_CONST;
+            return TOKEN_E::STRING_CONST;
         } else if(regex_match(current_token,identifier)){
-            return IDENTIFIER;
+            return TOKEN_E::IDENTIFIER;
         } else {
-            return NONE;
+            return TOKEN_E::NONE;
         }
     }
     catch (const std::regex_error& e) {
@@ -151,36 +151,36 @@ tokens_e JackTokenizer::tokenType(){
             std::cout << "The code was error_brack\n";
         }
     }
-    return NONE;
+    return TOKEN_E::NONE;
 }
-keywords_e JackTokenizer::keyWord(){
+TOKEN_E::keywords_e JackTokenizer::keyWord(){
     //Retuns the keyworks which is the current token as a constant
     //this method should be called only if tokenType is KEYWORD
     string token=current_token;
     current_token="";
     fout<<"<keyword>"<<token<<"</keyword>\n";
-    map<string,keywords_e> keyword;
-    keyword.insert(pair<string,keywords_e>());
-    keyword.insert(pair<string,keywords_e>("class",CLASS));
-    keyword.insert(pair<string,keywords_e>("constructor",CONSTRUCTOR));
-    keyword.insert(pair<string,keywords_e>("function",FUNCTION));
-    keyword.insert(pair<string,keywords_e>("method",METHOD));
-    keyword.insert(pair<string,keywords_e>("field",FIELD));
-    keyword.insert(pair<string,keywords_e>("static",STATIC));
-    keyword.insert(pair<string,keywords_e>("var",VAR));
-    keyword.insert(pair<string,keywords_e>("int",INT));
-    keyword.insert(pair<string,keywords_e>("boolean",BOOLEAN));
-    keyword.insert(pair<string,keywords_e>("void",VOID));
-    keyword.insert(pair<string,keywords_e>("true",TRUE));
-    keyword.insert(pair<string,keywords_e>("false",FALSE));
-    keyword.insert(pair<string,keywords_e>("null",NULL_PTR));
-    keyword.insert(pair<string,keywords_e>("this",THIS));
-    keyword.insert(pair<string,keywords_e>("let",LET));
-    keyword.insert(pair<string,keywords_e>("do",DO));
-    keyword.insert(pair<string,keywords_e>("if",IF));
-    keyword.insert(pair<string,keywords_e>("else",ELSE));
-    keyword.insert(pair<string,keywords_e>("while",WHILE));
-    keyword.insert(pair<string,keywords_e>("return",RETURN));
+    map<string,TOKEN_E::keywords_e> keyword;
+    keyword.insert(pair<string,TOKEN_E::keywords_e>());
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("class",TOKEN_E::CLASS));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("constructor",TOKEN_E::CONSTRUCTOR));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("function",TOKEN_E::FUNCTION));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("method",TOKEN_E::METHOD));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("field",TOKEN_E::FIELD));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("static",TOKEN_E::STATIC));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("var",TOKEN_E::VAR));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("int",TOKEN_E::INT));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("boolean",TOKEN_E::BOOLEAN));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("void",TOKEN_E::VOID));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("true",TOKEN_E::TRUE));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("false",TOKEN_E::FALSE));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("null",TOKEN_E::NULL_PTR));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("this",TOKEN_E::THIS));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("let",TOKEN_E::LET));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("do",TOKEN_E::DO));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("if",TOKEN_E::IF));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("else",TOKEN_E::ELSE));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("while",TOKEN_E::WHILE));
+    keyword.insert(pair<string,TOKEN_E::keywords_e>("return",TOKEN_E::RETURN));
     return keyword[token];
 }
 char JackTokenizer::symbol(){
