@@ -163,6 +163,7 @@ bool CompilationEngine::CompileClassVarDec(){
     //varName
     if(!is_varName()) return false;
     string varName=current_val;
+    class_level->define(varName,type,kind);
     //(','varName)*
     getToken();
     while(true){
@@ -190,25 +191,15 @@ bool CompilationEngine::CompileSubroutineDec(){
     spaces+="\t";
     printToken();
     subroutine_level=new SymbolTable();
-    if(current_val=="constructor"){
-        vmWrite->writePush(SYMBOL_E::CONSTANT,class_level->VarCount(SYMBOL_E::FIELD));//figure out the sixe of the object and push the size
-        vmWrite->writeCall("Memory.alloc",1);//calls Memory.alloc(n) , Finds a memory block of the required size,and returns its base address
-        vmWrite->writePop(SYMBOL_E::POINTER,0);//returns the base address
-    }else if(current_val=="method") {
-        subroutine_level->define("this",className,SYMBOL_E::ARG_F);
-        //associate the this memory segement with the object on which the method is called to operate
-        vmWrite->writePush(SYMBOL_E::ARG_S,0);
-        vmWrite->writePop(SYMBOL_E::POINTER,0);
-    }else if(current_val=="function"){
-
-    }
+    string fType=current_val;
+    if(fType=="method") subroutine_level->define("this",className,SYMBOL_E::ARG_F);
     getToken();
     //('void'|type)
     if(!(match_regex(current_val,"void")|is_type())) return false;
     getToken();
     //subroutineName
     if(!is_subroutineName()) return false;
-    string name=current_val;
+    string fName=current_val;
     getToken();
     //'('
     if(!match_regex(current_val,"\\(")) return false;
@@ -219,7 +210,7 @@ bool CompilationEngine::CompileSubroutineDec(){
     if(!match_regex(current_val,"\\)")) return false;
     getToken();
     //subroutineBody
-    if(!compileSubroutineBody(name)) return false;    
+    if(!compileSubroutineBody(fType,fName)) return false;    
     spaces.pop_back();
     printToken("</subroutineDec>");
     delete(subroutine_level);
@@ -264,7 +255,7 @@ int CompilationEngine::compileParameterList(){
     printToken("</parameterList>");
     return nLocals;
 }
-bool CompilationEngine::compileSubroutineBody(string fName){
+bool CompilationEngine::compileSubroutineBody(string fType,string fName){
     //Compiles a subroutine's body
     //subroutineBody: '{' varDec* statements '}'
     printToken("<subroutineBody>");
@@ -283,6 +274,17 @@ bool CompilationEngine::compileSubroutineBody(string fName){
         }
     };
     vmWrite->writeFunction(className+"."+fName,nLocals);
+    if(fType=="constructor"){
+        vmWrite->writePush(SYMBOL_E::CONSTANT,class_level->VarCount(SYMBOL_E::FIELD));//figure out the sixe of the object and push the size
+        vmWrite->writeCall("Memory.alloc",1);//calls Memory.alloc(n) , Finds a memory block of the required size,and returns its base address
+        vmWrite->writePop(SYMBOL_E::POINTER,0);//returns the base address
+    }else if(fType=="method") {
+        //associate the this memory segement with the object on which the method is called to operate
+        vmWrite->writePush(SYMBOL_E::ARG_S,0);
+        vmWrite->writePop(SYMBOL_E::POINTER,0);
+    }else if(fType=="function"){
+
+    }
     //statements 
     if(!compileStatements()) cout<<"ERROR";
     //'}'
@@ -384,27 +386,49 @@ bool CompilationEngine::compileStatements(){
             if(!is_varName()) return false;
             string varName=current_val;
             getToken();
+            bool is_array_access=false;
             if(match_regex(current_val,"\\[")){
+                //array access
+                is_array_access=true;
+                //arr[expression1]=expression2
+                //push arr
+                SYMBOL_E::fields_e sym=getVarKind(varName);
+                if(sym==SYMBOL_E::NONE) return false;
+                int index=getVarIndex(varName);
+                if(index==-1) return false;
+                vmWrite->writePush(enum2enum_fields_segments(sym),index);
+                //vm code for computing and pushing the value of expression
                 getToken();
                 if(!CompileExpression()) return false;
                 if(!match_regex(current_val,"\\]")) return false;
+                //add
+                vmWrite->writeArithmetic(SYMBOL_E::ADD);//top stack value=RAM address of arr[expression1]
                 getToken();
             }
             // cout<<"P2";
             if(!match_regex(current_val,"\\=")) return false;
             getToken();
             // cout<<"P3";
+            //vm code for comuting and pushing the value of expression2
             if(!CompileExpression()) return false;
             // cout<<"P4";
-            // cout<<current_tag<<" "<<current_val<<endl;
             if(!match_regex(current_val,"\\;")) return false;
-            SYMBOL_E::fields_e sym=getVarKind(varName);
-            // cout<<"P5";
-            if(sym==SYMBOL_E::NONE) return false;
-            int index=getVarIndex(varName);
-            // cout<<"P6";
-            if(index==-1) return false;
-            vmWrite->writePop(enum2enum_fields_segments(sym),index);
+            if(!is_array_access){
+                SYMBOL_E::fields_e sym=getVarKind(varName);
+                // cout<<"P5";
+                // cout<<varName;
+                if(sym==SYMBOL_E::NONE) return false;
+                int index=getVarIndex(varName);
+                // cout<<"P6";
+                if(index==-1) return false;
+                vmWrite->writePop(enum2enum_fields_segments(sym),index);
+            }else{
+                vmWrite->writePop(SYMBOL_E::TEMP,0);//temp 0 = the value of expression
+                //top stack value = RAM address of arr[expression]
+                vmWrite->writePop(SYMBOL_E::POINTER,1);
+                vmWrite->writePush(SYMBOL_E::TEMP,0);
+                vmWrite->writePop(SYMBOL_E::THAT,0);
+            }
             getToken();
             spaces.pop_back();
             printToken("</letStatement>");
@@ -521,6 +545,9 @@ bool CompilationEngine::CompileSubroutineCallWrite(string var1,string var2){
             if(index==-1) return false;
             vmWrite->writePush(enum2enum_fields_segments(sym),index);
         }
+    }else{
+        // method call
+        vmWrite->writePush(SYMBOL_E::POINTER,0);//push this
     }
     //'('expressionList')'
     if(!match_regex(current_val,"\\(")) return false;
@@ -530,7 +557,7 @@ bool CompilationEngine::CompileSubroutineCallWrite(string var1,string var2){
     if(var2==""){
         // subroutineName '(' expressionList ')'
         // method call
-        vmWrite->writeCall(className+"."+var1,nArgs);
+        vmWrite->writeCall(className+"."+var1,nArgs+1);
     }else{
         //(className |varName)'.'subroutineName'('expressionList')'
         //function call
@@ -540,7 +567,7 @@ bool CompilationEngine::CompileSubroutineCallWrite(string var1,string var2){
             vmWrite->writeCall(var1+"."+var2,nArgs);
         }else{
             //its a varName
-            vmWrite->writeCall(type+"."+var2,nArgs);
+            vmWrite->writeCall(type+"."+var2,nArgs+1);
         }
     }
     getToken();
@@ -636,6 +663,14 @@ bool CompilationEngine::CompileTerm(){
             }else{
                 //string constant
                 //make a new string
+                //string constant are created using String.new(length)
+                vmWrite->writePush(SYMBOL_E::CONSTANT,current_val.length());
+                vmWrite->writeCall("String.new",1);
+                //for x="cc...c" are handled using a series of calls to String.appendChar(c)
+                for(int i=0;i<current_val.length();i++){
+                    vmWrite->writePush(SYMBOL_E::CONSTANT,(int)current_val[i]);
+                    vmWrite->writeCall("String.appendChar",2);
+                }
             }
         }
         
@@ -655,9 +690,24 @@ bool CompilationEngine::CompileTerm(){
             //call f
             if(!CompileSubroutineCallWrite(varName,var2))return false;
         } else if(match_regex(current_val,"\\[")){
+            //array access
+            //b[j]
+            //push b
+            SYMBOL_E::fields_e sym=getVarKind(varName);
+            if(sym==SYMBOL_E::NONE) return false;
+            int index=getVarIndex(varName);
+            if(index==-1) return false;
+            vmWrite->writePush(enum2enum_fields_segments(sym),index);
+            //push j
             getToken();
             CompileExpression();
             if(!match_regex(current_val,"\\]")) return false;
+            //add
+            vmWrite->writeArithmetic(SYMBOL_E::ADD);
+            //pop pointer 1
+            vmWrite->writePop(SYMBOL_E::POINTER,1);
+            //push that 0
+            vmWrite->writePush(SYMBOL_E::THAT,0);
             getToken();  
         } else{
             //its just a variable 
@@ -728,6 +778,10 @@ int SymbolTable::VarCount(SYMBOL_E::fields_e kind){
 //Returns the kind of the named identifier in the current scope . If the identifier is unknown in the current scope , returns NONE
 SYMBOL_E::fields_e SymbolTable::KindOf(string name){
     // cout<<name<<endl;
+    // for(int i=0;i<this->name.size();i++){
+    //     cout<<this->name[i]<<" ";
+    // }
+    // cout<<endl;
     vector<string>::iterator it=find(this->name.begin(),this->name.end(),name);
     if(it==this->name.end()){
         return SYMBOL_E::NONE;

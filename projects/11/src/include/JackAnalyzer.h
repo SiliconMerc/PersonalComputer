@@ -113,7 +113,7 @@ class CompilationEngine{
     bool CompileClassVarDec();
     bool CompileSubroutineDec();
     int compileParameterList();
-    bool compileSubroutineBody(string fName);
+    bool compileSubroutineBody(string fType,string fName);
     int compileVarDec();
     bool compileStatements();
     bool CompileSubroutineCall();

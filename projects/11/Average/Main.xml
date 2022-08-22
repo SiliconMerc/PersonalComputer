@@ -43,6 +43,7 @@
 							<symbol>.</symbol>
 							<identifier>readInt</identifier>
 							<symbol>(</symbol>
+							<symbol>(</symbol>
 							<expressionList>
 								<expression>
 									<term>
@@ -64,6 +65,7 @@
 							<identifier>Array</identifier>
 							<symbol>.</symbol>
 							<identifier>new</identifier>
+							<symbol>(</symbol>
 							<symbol>(</symbol>
 							<expressionList>
 								<expression>
@@ -119,6 +121,7 @@
 									<identifier>Keyboard</identifier>
 									<symbol>.</symbol>
 									<identifier>readInt</identifier>
+									<symbol>(</symbol>
 									<symbol>(</symbol>
 									<expressionList>
 										<expression>
