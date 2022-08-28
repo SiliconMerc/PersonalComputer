@@ -1,0 +1,181 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Screen.jack
+
+/**
+ * A library of functions for displaying graphics on the screen.
+ * The Hack physical screen consists of 256 rows (indexed 0..255, top to bottom)
+ * of 512 pixels each (indexed 0..511, left to right). The top left pixel on 
+ * the screen is indexed (0,0).
+ */
+class Screen {
+    static Array twoToThe;
+    static boolean color;
+    /** Initializes the Screen. */
+    function void init() {
+        var int i;
+        let i=1;
+        let twoToThe = Array.new(16);
+        let twoToThe[0]=1;
+        while(i<16){//less than log2(N) or number of bits 
+            let twoToThe[i]=twoToThe[i-1]+twoToThe[i-1];
+            let i=i+1;
+        }
+        let color=true;
+        return;
+    }
+
+    /** Erases the entire screen. */
+    function void clearScreen() {
+        var int i;
+        let i=0;
+        while(i<8192){
+            do Memory.poke(16384+i,0);
+        }
+        return;
+    }
+
+    /** Sets the current color, to be used for all subsequent drawXXX commands.
+     *  Black is represented by true, white by false. */
+    function void setColor(boolean b) {
+        let color=b;
+        return;
+    }
+
+    /** Draws the (x,y) pixel, using the current color. */
+    function void drawPixel(int x, int y) {
+        var int address,value,i;
+        //address = 32*y+x/16
+        let address=((32*y)+(x/16));
+        //value = Memory.peek[16384+address]
+        let value = Memory.peek(16384+address);
+        //set the (x%16)th bit of the value to the current color
+        let i= x-((x/16)*16);
+        //can be done using logical 16 bit operation
+        if(color){
+            let value=value | twoToThe[i];
+        }else{
+            let value=value & (~twoToThe[i]);
+        }
+        do Memory.poke(16384+address,value);
+        return;
+        
+    }
+
+    /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+    function void drawLine(int x1, int y1, int x2, int y2) {
+        //for lines in general 
+        var boolean bottom,right;
+        var int diff,a,b,dy,dx;
+        var int address,value,i;//for horizontal line
+                
+        let bottom=true;
+        let right=true;
+        let dy=y2-y1;
+        let dx=x2-x1;
+        let a=0;
+        let b=0;
+        if(dy<0){
+            let bottom=false;
+            let dy=-dy;
+        }
+        if(dx<0){
+            let right=false;
+            let dx=-dx;
+        }
+        //draw vertical and horizontal lines to handled as special cases
+        if(x1=x2){
+            //draw vertical line
+            while(~(b>dy)){
+                if(bottom){
+                    do Screen.drawPixel(x1,y1+b);
+                }else{
+                    do Screen.drawPixel(x1,y1-b);
+                }
+                let b=b+1;
+            }
+        }else{
+            if(y1=y2){
+                //draw horizontal line
+                //address = 32*y+x/16
+                let address=((32*y1)+(x1/16));
+                //x1-min(x2,(x1/16)*16)//draw pixel
+                //min(x2,(x1/16)*16)-min(x2,(x2/16)*16)-Poke -1
+                //min(x2,(x2/16)*16)-x2//draw pixel
+                //OR
+                while(~(a>dx)){
+                    if(right){
+                        do Screen.drawPixel(x1+a,y1);
+                    }else{
+                        do Screen.drawPixel(x1-a,y1);
+                    }
+                    let a=a+1;
+                }   
+            }else{
+                //(b/a>dy/dx) has the same value as (a*dy<b*dx)
+                let diff =a*dy-b*dx;
+                //for printing line to top,right
+                //if b/a>dy/dx , we go right i.e a=a+1 , else we go up 
+                //a=0;b=0;diff=0
+                //origin at (0,0) : screen top left corner
+                //generalize the algorithm to draw the lines that go in any direction 
+                while((~(a>dx)) & (~(b>dy))){
+                    //drawPixel(x+a,y+b)
+                    if(bottom){
+                        if(right){
+                            do Screen.drawPixel(x1+a,y1+b);
+                        }else{
+                            do Screen.drawPixel(x1-a,y1+b);
+                        }
+                    }else{
+                        if(right){
+                            do Screen.drawPixel(x1+a,y1-b);
+                        }else{
+                            do Screen.drawPixel(x1-a,y1-b);
+                        }
+                    }
+                    //decide if to go right , or up
+                    if(diff<0){
+                        let a=a+1;
+                        let diff=diff+dy;
+                    }else{
+                        let b=b+1;
+                        let diff=diff-dx;
+                    }
+                }
+            }
+        }
+        return;
+        
+    }
+
+    /** Draws a filled rectangle whose top left corner is (x1, y1)
+     * and bottom right corner is (x2,y2), using the current color. */
+    function void drawRectangle(int x1, int y1, int x2, int y2) {
+        //a lot of horizontal lines
+        while(~(y1>y2)){
+            do Screen.drawLine(x1,y1,x2,y1);
+            let y1=y1+1;
+        }
+        return;
+    }
+
+    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    function void drawCircle(int x, int y, int r) {
+        var int dy;
+        //for each dy=-r to r do:
+        //  drawLine(x-root(r*r-dy*dy),y+dy,x+root(r*r-dy*dy),y+dy)
+        //Issues:
+        //can potentially lead to overflow
+        //to handle , limit r to no greater than 181
+        let dy=-r;
+        if(~(r>181)){
+            while(~(dy>r)){
+                do Screen.drawLine(x-Math.sqrt((r*r)-(dy*dy)),y+dy,x+Math.sqrt((r*r)-(dy*dy)),y+dy);
+                let dy=dy+1;
+            }
+        }
+        return;
+    }
+}

@@ -1,0 +1,94 @@
+// File name: projects/09/SnakeAndApple/Game.jack
+
+/**
+ * Implements the Snake and Apple game.
+ * This simple game allows the user to move a snake around
+ * the screen, and change the Snake's speed during the movement.
+ * When the game starts, a snake is shown at the top-left corner of the screen. 
+ * The user controls the snake as follows.
+ * The 4 arrow keys are used to move the snake up, down, left, and right.
+ * The 'z' and 'x' keys are used, respectively, to decrement and increment
+ * the snake's speed. The 'q' key is used to quit the game.
+ */
+
+class SnakeGame {
+   field Snake snake; // the snake of this game
+   field Apple a;
+   field int points;
+   field boolean eat;       
+   field int rand;  
+   /** Constructs a new Snake Game. */
+   constructor SnakeGame new() {
+      // Creates a snake of length 3 and positions it at the top-left
+      // of the screen.
+      let snake = Snake.new(3);
+      let a=Apple.new(210,210);
+      let eat=false;
+      let points=0;
+      let rand = 0; 
+      return this;
+   }
+
+   /** Disposes this game. */
+   method void dispose() {
+      do snake.dispose();
+      do a.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   /** Runs the game: handles the user's inputs and moves the snake accordingly */
+   method void run() {
+      var char key;  // the key currently pressed by the user
+      var int temp;
+      var boolean exit;
+      let exit = false;
+      
+      while (~exit) {
+         let key = Keyboard.keyPressed();
+         if (key = 81)  { let exit = true; }     // q key
+         if (key = 90)  { do snake.decSpeed(); } // z key
+         if (key = 88)  { do snake.incSpeed(); } // x key
+         if (key = 131) { do snake.setDirection(1); }   // up arrow
+         if (key = 133) { do snake.setDirection(2); }   // down arrow
+         if (key = 130) { do snake.setDirection(3); }   // left arrow
+         if (key = 132) { do snake.setDirection(4); }   // right arrow
+         //let temp = key ;
+         let rand = rand + 29;
+         do check();
+         do snake.move();
+         if(eat){
+            do a.draw(a.getX(),a.getY());    
+         }
+         do Output.moveCursor(0,0);
+         do Output.printString(" Points : ");
+         do Output.printInt(points);
+     } // while
+     return;
+   }
+
+   /** Check the snake's status */
+   method void check(){
+      if((snake.getHeadX()= a.getX())&(snake.getHeadY()= a.getY())){
+         //do Output.printString("Eat Done");
+         //do Output.println();
+         let eat=true;
+      }
+      if(eat){
+         if((snake.getTailX()= a.getX())&(snake.getTailY()= a.getY())){
+            //do Output.printString("Increment length");
+            //do Output.println();    
+            do snake.incLength();
+            let eat=false;
+            let points = points + 1 ;
+            do a.dispose();
+            let a=Apple.new(rand - ((rand/512)*512),rand - ((rand/255)*255));
+            let rand = rand - ((rand/512)*512);
+         } 
+      }  
+      return;
+   }
+}
+
+
+
