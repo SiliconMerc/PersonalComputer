@@ -1,9 +1,31 @@
 # PersonalComputer
+
 - ALU/CPU design and implementation using elementary logic gates and flip flops in HDLWriting
 - Assembler , VMTranslator and Compiler to parse Java like high level language responsible
   for converting bytecode to machine-specific code
-
 - Understanding Object-based design and programming, abstract data types, scoping rules, syntax and semantics, references
+
+## Summary
+
+1. [The HACK Computer](#the-hack-computer)
+   1. [THE ISA](#the-isa)
+2. [The JACK Compiler](#the-jack-compiler)
+   1. [Memory Segements](#memory-segements)
+   2. [Function Implementation](#function-implementation)
+   3. [The JACK Tokenizer](#the-jack-tokenizer)
+   4. [Compiling Epxressions](#compiling-epxressions)
+   5. [Crafting the Compiler](#crafting-the-compiler)
+   6. [Symbol Tables](#symbol-tables)
+   7. [Object Construction](#object-construction)
+   8. [Array Implementation](#array-implementation)
+3. [The OS](#the-os)
+   1. [Heap Management](#heap-management)
+4. [The Big Picture](#the-big-picture)
+
+### References 
+
+1. http://www.craftinginterpreters.com/contents.html
+2. [The Elements of Computing Systems: Building a Modern Computer from First Principles : Book by Noam Nisan and Shimon Schocken](https://www.google.co.in/books/edition/The_Elements_of_Computing_Systems/THie6tt-2z8C?hl=en&gbpv=1&printsec=frontcover)
 
 ## The HACK Computer
 
@@ -51,7 +73,7 @@
 
 http://www.craftinginterpreters.com/contents.html
 
-#### Symbol Tables
+### Symbol Tables
 
 ![image-20220828163742908](./images/image-20220828163742908.png)
 
@@ -59,14 +81,14 @@ http://www.craftinginterpreters.com/contents.html
 
 ![image-20220828163801873](./images/image-20220828163801873.png)
 
-### Objetct Construction 
+### Object Construction 
 
 ![image-20220828164045063](./images/image-20220828164045063.png)
 
 1. A constructor allocates memory for the object on the memory heap based on the number of fields and returns the reference to the start of memory segment allocated fot this object
 2. For further calls we use the **this** pointer(containing the memory address of start of class) to access the variables stored for that class 
 
-Array Implementation
+### Array Implementation
 
 ![image-20220828164527729](./images/image-20220828164527729.png)
 
@@ -77,13 +99,13 @@ Array Implementation
 
 ![image-20220828163431105](./images/image-20220828163431105.png)
 
-Heap Management
+### Heap Management
 
 ![image-20220828165012033](./images/image-20220828165012033.png)
 
 ![image-20220828165020918](./images/image-20220828165020918.png)
 
-The Big Picture
+# The Big Picture
 
 ![image-20220828163336325](./images/image-20220828163336325.png)
 
