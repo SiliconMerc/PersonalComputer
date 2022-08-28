@@ -112,7 +112,7 @@ class Main {
         let out[0] = 71;
         do Memory.deAlloc(b);
         let out[0] = 72;
-
+        
         // Test that deallocated blocks are placed on the free list and can
         // be reused.
 
